@@ -4,7 +4,7 @@ import XMLPreProcess as xpp
 import copy
 import MakeTxt as mt
 import VOC_Label as vocl
-
+import random
 
 # 读取所有图片
 def read_dir(in_str, input_images_str, input_xmls_str):
@@ -262,7 +262,8 @@ def main_root():
     out_xmls = []
     out_neg_images = []
     out_neg_xmls = []
-    target_size = (608, 608)
+    target_size = (416, 416)
+    ratio_negtive = 2
 
     for root_index, root_filename in enumerate(os.listdir(root_input_str)):
         print(root_filename)
@@ -288,6 +289,17 @@ def main_root():
                       out_images, out_xmls, out_neg_images, out_neg_xmls, target_size)
             print(index, ', ', end="")
         print('\n')
+
+    # sample all positive and part negtive images
+    neg_imgs_num = len(out_neg_images)
+    target_neg_imgs_num = len(out_images) * ratio_negtive
+    out_neg_imgs_num = target_neg_imgs_num if target_neg_imgs_num < neg_imgs_num else neg_imgs_num
+    sampled_negtive_imgs = random.sample(range(neg_imgs_num), out_neg_imgs_num)
+
+    for neg_index in neg_imgs_num:
+        if neg_index in sampled_negtive_imgs:
+            out_images.append(out_neg_images[neg_index])
+            out_xmls.append(out_neg_xmls[neg_index])
 
     if len(out_images) != len(out_xmls):
         print('Error: out_images & out_xmls')
