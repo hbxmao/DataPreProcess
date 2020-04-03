@@ -62,6 +62,9 @@ def get_new_xml(in_target_size, in_ori_et_root, in_bndboxs, in_crop_rect):
     size.find('height').text = str(in_target_size[0])
     size.find('width').text = str(in_target_size[1])
 
+    # change channel num
+    size.find('depth').text = '3'
+
     # 删除所有object node
     Object = out_et_root.findall('object')
 
@@ -208,7 +211,7 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_ne
         out_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
         out_xmls.append(out_xml)
     else:
-        out_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
+        out_neg_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
         out_neg_xmls.append(out_xml)
 
     return
@@ -256,8 +259,8 @@ def main():
 
 
 def main_root():
-    root_input_str = 'D:/Cosmetic/stage1/'
-    out_folder_str = 'D:/Cosmetic/stage1/split'
+    root_input_str = 'D:/Project_Sources/Cosmetic/stage1/'
+    out_folder_str = 'D:/Project_Sources/Cosmetic/stage1/split'
     out_images = []
     out_xmls = []
     out_neg_images = []
@@ -294,12 +297,16 @@ def main_root():
     neg_imgs_num = len(out_neg_images)
     target_neg_imgs_num = len(out_images) * ratio_negtive
     out_neg_imgs_num = target_neg_imgs_num if target_neg_imgs_num < neg_imgs_num else neg_imgs_num
-    sampled_negtive_imgs = random.sample(range(neg_imgs_num), out_neg_imgs_num)
+    sampled_neg_imgs = random.sample(range(neg_imgs_num), out_neg_imgs_num)
 
-    for neg_index in neg_imgs_num:
-        if neg_index in sampled_negtive_imgs:
+    print('all positive samples num: ', len(out_images), 'all negative samples num: ', neg_imgs_num)
+
+    for neg_index in range(neg_imgs_num):
+        if neg_index in sampled_neg_imgs:
             out_images.append(out_neg_images[neg_index])
             out_xmls.append(out_neg_xmls[neg_index])
+
+    print('total num: ', len(out_images))
 
     if len(out_images) != len(out_xmls):
         print('Error: out_images & out_xmls')

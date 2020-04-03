@@ -24,8 +24,8 @@ def convert(size, box):
 
 
 def convert_annotation(image_id):
-    in_file = open('D:/Cosmetic/stage1/split/data/Annotations/%s.xml' % (image_id))
-    out_file = open('D:/Cosmetic/stage1/split/data/labels/%s.txt' % (image_id), 'w')
+    in_file = open('D:/Project_Sources/Cosmetic/stage1/split/data/Annotations/%s.xml' % (image_id))
+    out_file = open('D:/Project_Sources/Cosmetic/stage1/split/data/labels/%s.txt' % (image_id), 'w')
     tree = ET.parse(in_file)
     root = tree.getroot()
     size = root.find('size')
@@ -49,12 +49,12 @@ def VOC_Label():
     wd = getcwd()
     print(wd)
     for image_set in sets:
-        if not os.path.exists('D:/Cosmetic/stage1/split/data/labels/'):
-            os.makedirs('D:/Cosmetic/stage1/split/data/labels/')
-        image_ids = open('D:/Cosmetic/stage1/split/data/ImageSets/%s.txt' % (image_set)).read().strip().split()
-        list_file = open('D:/Cosmetic/stage1/split/data/%s.txt' % (image_set), 'w')
+        if not os.path.exists('D:/Project_Sources/Cosmetic/stage1/split/data/labels/'):
+            os.makedirs('D:/Project_Sources/Cosmetic/stage1/split/data/labels/')
+        image_ids = open('D:/Project_Sources/Cosmetic/stage1/split/data/ImageSets/%s.txt' % (image_set)).read().strip().split()
+        list_file = open('D:/Project_Sources/Cosmetic/stage1/split/data/%s.txt' % (image_set), 'w')
         for image_id in image_ids:
-            list_file.write('D:/Cosmetic/stage1/split/data/images/%s.jpg\n' % (image_id))
+            list_file.write('D:/Project_Sources/Cosmetic/stage1/split/data/images/%s.jpg\n' % (image_id))
             convert_annotation(image_id)
         list_file.close()
 
