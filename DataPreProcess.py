@@ -127,7 +127,7 @@ def calc_inter(rec1, rec2):
 
 
 # 按指定大小切割图片
-def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, target_size):
+def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_neg_xmls, target_size):
     # image
     cur_img = cv2.imread(in_img_path, cv2.IMREAD_UNCHANGED)
     target_rows = target_size[0]
@@ -159,6 +159,9 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, target_size):
             if defects_count > 0:
                 out_imgs.append((cur_img[x0_0:x1_1+1, y0_0:y1_1+1], x0_0, y0_0, x1_1, y1_1))
                 out_xmls.append(out_xml)
+            else:
+                out_neg_imgs.append((cur_img[x0_0:x1_1 + 1, y0_0:y1_1 + 1], x0_0, y0_0, x1_1, y1_1))
+                out_neg_xmls.append(out_xml)
 
     # last row
     x0 = cur_img.shape[0] - 1 - target_rows
@@ -173,6 +176,9 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, target_size):
         if defects_count > 0:
             out_imgs.append((cur_img[x0:x1, y0_0:y1_1 + 1], x0, y0_0, x1, y1_1))
             out_xmls.append(out_xml)
+        else:
+            out_neg_imgs.append((cur_img[x0:x1, y0_0:y1_1 + 1], x0, y0_0, x1, y1_1))
+            out_neg_xmls.append(out_xml)
 
     # last col
     x0 = 0
@@ -187,6 +193,9 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, target_size):
         if defects_count > 0:
             out_imgs.append((cur_img[x0_0:x1_1 + 1, y0:y1], x0_0, y0, x1_1, y1))
             out_xmls.append(out_xml)
+        else:
+            out_neg_imgs.append((cur_img[x0_0:x1_1 + 1, y0:y1], x0_0, y0, x1_1, y1))
+            out_neg_xmls.append(out_xml)
 
     # last corner
     x0 = cur_img.shape[0] - 1 - target_rows
@@ -198,6 +207,9 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, target_size):
     if defects_count > 0:
         out_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
         out_xmls.append(out_xml)
+    else:
+        out_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
+        out_neg_xmls.append(out_xml)
 
     return
 
@@ -248,6 +260,8 @@ def main_root():
     out_folder_str = 'D:/Cosmetic/stage1/split'
     out_images = []
     out_xmls = []
+    out_neg_images = []
+    out_neg_xmls = []
     target_size = (608, 608)
 
     for root_index, root_filename in enumerate(os.listdir(root_input_str)):
@@ -271,7 +285,7 @@ def main_root():
         for index in range(len(input_images)):  # len(input_images)
             split_img(input_folder_str + '/' + input_images[index],
                       input_folder_str + '/' + input_xmls[index],
-                      out_images, out_xmls, target_size)
+                      out_images, out_xmls, out_neg_images, out_neg_xmls, target_size)
             print(index, ', ', end="")
         print('\n')
 
