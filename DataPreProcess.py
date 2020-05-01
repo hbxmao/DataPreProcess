@@ -6,6 +6,10 @@ import MakeTxt as mt
 import VOC_Label as vocl
 import random
 
+classes = ["scratch", "oilstain", "gum"]
+n_classes = ["blobpaint"]
+
+
 # 读取所有图片
 def read_dir(in_str, input_images_str, input_xmls_str):
 
@@ -86,6 +90,7 @@ def get_new_xml(in_target_size, in_ori_et_root, in_bndboxs, in_crop_rect):
             contained_bndboxs.append(defect_rt_cropped)
             # print(rt_and, in_crop_rect, defect_rt_cropped)
 
+    out_classes = []
     # 插入修改后的object nodes
     for cur_out_bndboxs in contained_bndboxs:
         cur_object_4_insert = copy.deepcopy(Object_4_insert)
@@ -95,6 +100,7 @@ def get_new_xml(in_target_size, in_ori_et_root, in_bndboxs, in_crop_rect):
         cur_object_4_insert.find('bndbox').find('ymax').text = str(cur_out_bndboxs[3])
         cur_object_4_insert.find('bndbox').find('xmax').text = str(cur_out_bndboxs[4])
         out_et_root.getroot().append(cur_object_4_insert)
+        out_classes.append(cur_out_bndboxs[0])
 
     xml_str = xpp.tostring(out_et_root.getroot(), encoding='utf8', method='xml')
 
@@ -103,9 +109,9 @@ def get_new_xml(in_target_size, in_ori_et_root, in_bndboxs, in_crop_rect):
     out_et_root = xpp.ElementTree(xpp.fromstring(xml_str))
 
     if len(contained_bndboxs) > 0:
-        return out_et_root, len(contained_bndboxs)
+        return out_et_root, len(contained_bndboxs), out_classes
     else:
-        return out_et_root, 0
+        return out_et_root, 0, []
 
 
 def calc_inter(rec1, rec2):
@@ -130,15 +136,16 @@ def calc_inter(rec1, rec2):
 
 
 # 按指定大小切割图片
-def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_neg_xmls, target_size):
+def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_classes, out_neg_imgs, out_neg_xmls, target_size):
     # image
     cur_img = cv2.imread(in_img_path, cv2.IMREAD_UNCHANGED)
-    target_rows = target_size[0]
-    target_cols = target_size[1]
+    target_rows = target_size[1]
+    target_cols = target_size[0]
 
     # xml
     cur_xml = xpp.read_xml(in_xml_path)
     cur_bndboxs = []
+    # get all current annotations in xml file
     get_xml_bndbox(cur_xml, cur_bndboxs)
 
     # print(target_size, cur_img.shape)
@@ -158,10 +165,11 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_ne
             y0_0 = y0 + y * target_cols
             y1_1 = y1 + y * target_cols
             # print('point: ', x0_0, y0_0, x1_1, y1_1)
-            out_xml, defects_count = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0_0, y0_0, x1_1, y1_1))
+            out_xml, defects_count, out_class = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0_0, y0_0, x1_1, y1_1))
             if defects_count > 0:
                 out_imgs.append((cur_img[x0_0:x1_1+1, y0_0:y1_1+1], x0_0, y0_0, x1_1, y1_1))
                 out_xmls.append(out_xml)
+                out_classes.append(out_class)
             else:
                 out_neg_imgs.append((cur_img[x0_0:x1_1 + 1, y0_0:y1_1 + 1], x0_0, y0_0, x1_1, y1_1))
                 out_neg_xmls.append(out_xml)
@@ -175,10 +183,11 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_ne
         y0_0 = y0 + y * target_cols
         y1_1 = y1 + y * target_cols
         # print('last row: ', x0, y0_0, x1, y1_1)
-        out_xml, defects_count = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0, y0_0, x1, y1_1))
+        out_xml, defects_count, out_class = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0, y0_0, x1, y1_1))
         if defects_count > 0:
             out_imgs.append((cur_img[x0:x1, y0_0:y1_1 + 1], x0, y0_0, x1, y1_1))
             out_xmls.append(out_xml)
+            out_classes.append(out_class)
         else:
             out_neg_imgs.append((cur_img[x0:x1, y0_0:y1_1 + 1], x0, y0_0, x1, y1_1))
             out_neg_xmls.append(out_xml)
@@ -192,10 +201,11 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_ne
         x0_0 = x0 + x * target_rows
         x1_1 = x1 + x * target_rows
         # print('last col: ', x0_0, y0, x1_1, y1)
-        out_xml, defects_count = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0_0, y0, x1_1, y1))
+        out_xml, defects_count, out_class = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0_0, y0, x1_1, y1))
         if defects_count > 0:
             out_imgs.append((cur_img[x0_0:x1_1 + 1, y0:y1], x0_0, y0, x1_1, y1))
             out_xmls.append(out_xml)
+            out_classes.append(out_class)
         else:
             out_neg_imgs.append((cur_img[x0_0:x1_1 + 1, y0:y1], x0_0, y0, x1_1, y1))
             out_neg_xmls.append(out_xml)
@@ -206,10 +216,11 @@ def split_img(in_img_path, in_xml_path, out_imgs, out_xmls, out_neg_imgs, out_ne
     x1 = cur_img.shape[0] - 1
     y1 = cur_img.shape[1] - 1
     # print('right bottom corner: ', x0, y0, x1, y1)
-    out_xml, defects_count = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0, y0, x1, y1))
+    out_xml, defects_count, out_class = get_new_xml(target_size, cur_xml, cur_bndboxs, (x0, y0, x1, y1))
     if defects_count > 0:
         out_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
         out_xmls.append(out_xml)
+        out_classes.append(out_class)
     else:
         out_neg_imgs.append((cur_img[x0:x1, y0:y1], x0, y0, x1, y1))
         out_neg_xmls.append(out_xml)
@@ -259,14 +270,16 @@ def main():
 
 
 def main_root():
-    root_input_str = 'D:/Project_Sources/Cosmetic/stage1/'
-    out_folder_str = 'D:/Project_Sources/Cosmetic/stage1/split'
+    root_input_str = 'D:/Project_Sources/Cosmetic/stage_test/'
+    out_folder_str = 'D:/Project_Sources/Cosmetic/stage_test/split'
     out_images = []
     out_xmls = []
+    out_classes = []
     out_neg_images = []
     out_neg_xmls = []
-    target_size = (416, 416)
+    target_size = (512, 512)
     ratio_negtive = 2
+    out_pairs = []
 
     for root_index, root_filename in enumerate(os.listdir(root_input_str)):
         print(root_filename)
@@ -281,17 +294,24 @@ def main_root():
         input_images = []
         input_xmls = []
         # read all images and xmls
+        # input_images is names of input images
+        # input_xmls is names of input xmls
         read_dir(input_folder_str, input_images, input_xmls)
         if len(input_images) != len(input_xmls):
             print('Error: '+ input_folder_str + ' has wrong file nums')
             continue
         # print(input_images, '\n', input_xmls)
+
         for index in range(len(input_images)):  # len(input_images)
             split_img(input_folder_str + '/' + input_images[index],
                       input_folder_str + '/' + input_xmls[index],
-                      out_images, out_xmls, out_neg_images, out_neg_xmls, target_size)
+                      out_images, out_xmls, out_classes, out_neg_images, out_neg_xmls, target_size)
             print(index, ', ', end="")
         print('\n')
+
+    if len(out_images) != len(out_xmls) or len(out_images) != len(out_classes) or len(out_xmls) != len(out_classes):
+        print('Error: out_images | out_xmls | out_classes')
+        return -1
 
     # sample all positive and part negtive images
     neg_imgs_num = len(out_neg_images)
@@ -305,12 +325,26 @@ def main_root():
         if neg_index in sampled_neg_imgs:
             out_images.append(out_neg_images[neg_index])
             out_xmls.append(out_neg_xmls[neg_index])
+            out_classes.append([])
 
     print('total num: ', len(out_images))
 
-    if len(out_images) != len(out_xmls):
-        print('Error: out_images & out_xmls')
+    if len(out_images) != len(out_xmls) or len(out_images) != len(out_classes) or len(out_xmls) != len(out_classes):
+        print('Error: out_images | out_xmls | out_classes')
         return -1
+
+    for i in range(len(out_images)):
+        out_pairs.append((out_images[i], out_xmls[i], out_classes[i]))
+
+    random.shuffle(out_pairs)
+
+    # start outputting
+    out_images.clear()
+    out_xmls.clear()
+
+    for i in out_pairs:
+        out_images.append(i[0])
+        out_xmls.append(i[1])
 
     print('start writing: ')
     write_dir(out_folder_str + '/imgs/', out_images, '.bmp')
@@ -323,7 +357,7 @@ def main_root():
 
 # main
 if __name__ == '__main__':
-    # main_root()
+    main_root()
     # mt.make_txt()
-    vocl.VOC_Label()
+    # vocl.VOC_Label()
 

@@ -5,8 +5,8 @@ import random
 def make_txt():
     trainval_percent = 0.1
     train_percent = 0.9
-    xmlfilepath = 'D:/Project_Sources/Cosmetic/stage1/split/data/Annotations'
-    txtsavepath = 'D:/Project_Sources/Cosmetic/stage1/split/data/ImageSets'
+    xmlfilepath = 'D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/Annotations'
+    txtsavepath = 'D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/ImageSets'
     total_xml = os.listdir(xmlfilepath)
 
     num = len(total_xml)
@@ -16,10 +16,10 @@ def make_txt():
     trainval = random.sample(list, tv)
     train = random.sample(trainval, tr)
 
-    ftrainval = open('D:/Project_Sources/Cosmetic/stage1/split/data/ImageSets/trainval.txt', 'w')
-    ftest = open('D:/Project_Sources/Cosmetic/stage1/split/data/ImageSets/test.txt', 'w')
-    ftrain = open('D:/Project_Sources/Cosmetic/stage1/split/data/ImageSets/train.txt', 'w')
-    fval = open('D:/Project_Sources/Cosmetic/stage1/split/data/ImageSets/val.txt', 'w')
+    ftrainval = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/ImageSets/trainval.txt', 'w')
+    ftest = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/ImageSets/test.txt', 'w')
+    ftrain = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/ImageSets/train.txt', 'w')
+    fval = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/ImageSets/val.txt', 'w')
 
     for i in list:
         name = total_xml[i][:-4] + '\n'
