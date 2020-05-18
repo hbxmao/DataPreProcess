@@ -3,9 +3,9 @@ from xml.etree.ElementTree import ElementTree, Element, tostring, fromstring
 
 
 def read_xml(in_path):
-    '''''读取并解析xml文件
+    """''读取并解析xml文件
        in_path: xml路径
-       return: ElementTree'''
+       return: ElementTree"""
     tree = ElementTree()
     tree.parse(in_path)
     return tree
