@@ -20,7 +20,7 @@ def main():
                             # 'D:/Project_Sources/Cosmetic/stage_test',
                             # 'D:/Project_Sources/Cosmetic/stage_test_1'
                             ]
-    out_folder_path_str = 'D:/Project_Sources/Cosmetic/stage2_out'
+    out_folder_path_str = 'D:/Project_Sources/Cosmetic/stage2_out/CMB'
 
     # all paths to each image from input path, list index is process index
     in_paths_list = []
@@ -112,8 +112,9 @@ def main():
     # at this point all single classes has been processed
     # now should start output process
     target_single_cls_amount = min(length_list)
+    target_defect_free_amount = target_single_cls_amount * 1 * len(classes)
     print('sampling '+str(target_single_cls_amount)+' for each kind of defects... (n_classes ant included)')
-    print('sampling '+str(target_single_cls_amount * 2 * len(classes))+' defects free... ')
+    print('sampling '+str(target_defect_free_amount)+' defects free... ')
 
     # shuffle all_image_sub_rt_classes
     random.shuffle(all_image_sub_rt_classes)
@@ -138,7 +139,7 @@ def main():
         # check length
         # update length list
         if len(cur_sub_rt_cls[2]) == 0:
-            if length_list[len(classes)] == 2 * len(classes) * target_single_cls_amount:
+            if length_list[len(classes)] == target_defect_free_amount:
                 continue
         else:
             has_enough = False
@@ -177,4 +178,6 @@ def main():
 
 # main
 if __name__ == '__main__':
-    main()
+    #main()
+    mt.make_txt()
+    vocl.VOC_Label()

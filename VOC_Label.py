@@ -6,7 +6,7 @@ from os.path import join
 
 sets = ['train', 'test', 'val']
 
-classes = ["scratch"]  # 划痕，因此只有一个类别
+classes = ["scratch", "oilstain", "gum"]  # 划痕，因此只有一个类别
 
 
 def convert(size, box):
@@ -24,8 +24,8 @@ def convert(size, box):
 
 
 def convert_annotation(image_id):
-    in_file = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/Annotations/%s.xml' % (image_id))
-    out_file = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/labels/%s.txt' % (image_id), 'w')
+    in_file = open('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/Annotations/%s.xml' % (image_id))
+    out_file = open('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/labels/%s.txt' % (image_id), 'w')
     tree = ET.parse(in_file)
     root = tree.getroot()
     size = root.find('size')
@@ -49,12 +49,12 @@ def VOC_Label():
     wd = getcwd()
     print(wd)
     for image_set in sets:
-        if not os.path.exists('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/labels/'):
-            os.makedirs('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/labels/')
-        image_ids = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/ImageSets/%s.txt' % (image_set)).read().strip().split()
-        list_file = open('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/%s.txt' % (image_set), 'w')
+        if not os.path.exists('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/labels/'):
+            os.makedirs('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/labels/')
+        image_ids = open('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/ImageSets/%s.txt' % (image_set)).read().strip().split()
+        list_file = open('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/%s.txt' % (image_set), 'w')
         for image_id in image_ids:
-            list_file.write('D:/Projects/PycharmWorkspace/Yolov3_master/yolov3/data/images/%s.jpg\n' % (image_id))
+            list_file.write('D:/Projects/PycharmWorkspace/Yolov3_ultr_master/yolov3/data/images/%s.jpg\n' % (image_id))
             convert_annotation(image_id)
         list_file.close()
 

@@ -45,7 +45,7 @@ def create_all_sub_roi_rects(image_size, target_size):
         for y in range(col_count):
             y0_0 = y0 + y * target_cols
             y1_1 = y1 + y * target_cols
-            all_image_sub_rects.append((x0_0, y0_0, x1_1, y1_1))
+            all_image_sub_rects.append((x0_0, y0_0, x1_1+1, y1_1+1))
 
     # last row
     x0 = ori_rows - 1 - target_rows
@@ -55,7 +55,7 @@ def create_all_sub_roi_rects(image_size, target_size):
     for y in range(col_count):
         y0_0 = y0 + y * target_cols
         y1_1 = y1 + y * target_cols
-        all_image_sub_rects.append((x0, y0_0, x1, y1_1))
+        all_image_sub_rects.append((x0, y0_0, x1, y1_1+1))
 
     # last col
     x0 = 0
@@ -65,7 +65,7 @@ def create_all_sub_roi_rects(image_size, target_size):
     for x in range(row_count):
         x0_0 = x0 + x * target_rows
         x1_1 = x1 + x * target_rows
-        all_image_sub_rects.append((x0_0, y0, x1_1, y1))
+        all_image_sub_rects.append((x0_0, y0, x1_1+1, y1))
 
     # last corner
     x0 = ori_rows - 1 - target_rows
@@ -128,6 +128,8 @@ def write_sub_single_sample(in_out_path, in_out_image, in_out_ori_xml, in_sub_rt
     cur_img = cv2.imread(in_out_image, cv2.IMREAD_UNCHANGED)
     out_img = cur_img[in_sub_rt[0]:in_sub_rt[2], in_sub_rt[1]:in_sub_rt[3]]
     cv2.imwrite(in_out_path + '.jpg', out_img)
+    separate_out_img_path = in_out_path[0 : in_out_path.rfind('CMB')] + 'JPEGImages/' + in_out_path[in_out_path.rfind('/')+1 : len(in_out_path)]
+    cv2.imwrite(separate_out_img_path + '.jpg', out_img)
 
     cur_xml = xpp.read_xml(in_out_ori_xml)
     out_et_root = copy.deepcopy(cur_xml)
@@ -170,5 +172,7 @@ def write_sub_single_sample(in_out_path, in_out_image, in_out_ori_xml, in_sub_rt
     out_et_root = xpp.ElementTree(xpp.fromstring(xml_str))
 
     xpp.write_xml(in_out_path + '.xml', out_et_root)
+    separate_out_xml_path = in_out_path[0: in_out_path.rfind('CMB')] + 'Annotations/' + in_out_path[in_out_path.rfind('/') + 1: len(in_out_path)]
+    xpp.write_xml(separate_out_xml_path + '.xml', out_et_root)
 
     return 0
